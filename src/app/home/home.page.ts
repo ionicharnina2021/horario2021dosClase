@@ -1,3 +1,4 @@
+import { DatosService } from './../datos.service';
 import { CopiaService } from './../copia.service';
 import { Component, OnInit } from "@angular/core";
 
@@ -7,11 +8,17 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["home.page.scss"],
 })
 export class HomePage implements OnInit {
-  constructor(private copiaService:CopiaService) {}
+  constructor(private copiaService:CopiaService, private datosService:DatosService) {}
   ngOnInit(): void {
     
   }
   copia(){
     this.copiaService.copiarBBDD();
+  }
+  abrir(){
+    this.datosService.openDB();
+  }
+  getHoras(){
+    this.datosService.getHoras();
   }
 }
