@@ -8,6 +8,7 @@ import { Injectable } from "@angular/core";
 export class DatosService {
   private db: SQLiteObject;
   private horasList: any[] = [];
+  private cursosList: any[] = [];
   /*
   Este servicio supone que se ha copiado la bbdd
   */
@@ -18,12 +19,16 @@ export class DatosService {
   Un objeto SQLite se encarga de gestionar la bbdd
   */
   constructor(private platform: Platform, private sqlite: SQLite) {}
-  async executeSentence(target:any[],sqlSentence: string, searchParam: any[]) {
+  async executeSentence(
+    target: any[],
+    sqlSentence: string,
+    searchParam: any[]
+  ) {
     let consultable = true;
     if (!this.db) {
       await this.openDB()
-        .then(()=>{
-          console.log(this.db);          
+        .then(() => {
+          console.log(this.db);
         })
         .catch(() => {
           consultable = false;
@@ -33,21 +38,26 @@ export class DatosService {
       this.db
         .executeSql(sqlSentence, searchParam)
         .then((data) => {
-          for(let i=0;data.rows.length;i++){
-            let obj=data.rows.item(i);
+          for (let i = 0; data.rows.length; i++) {
+            let obj = data.rows.item(i);
             target.push(obj);
           }
         })
         .catch((e) => {
-          console.log("fallo al ejecutar sentencia "+JSON.stringify(e));
+          console.log("fallo al ejecutar sentencia " + JSON.stringify(e));
         });
     }
   }
 
   getHoras() {
     const sql = "Select descripcion as nombre from horasSemana";
-    this.executeSentence(this.horasList,sql,[]);
+    this.executeSentence(this.horasList, sql, []);
+  }
 
+  getCursos(estudios) {
+    const sql =
+      "SELECT grupo.idGrupo as id, grupo.nombre FROM grupo INNER JOIN estudios ON grupo.idEstudios = estudios.idEstudios  WHERE estudios.nombre LIKE ?";
+    this.executeSentence(this.cursosList, sql, [estudios]);
   }
 
   async openDB() {
