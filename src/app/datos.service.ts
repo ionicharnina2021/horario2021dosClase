@@ -19,14 +19,14 @@ export class DatosService {
   Un objeto SQLite se encarga de gestionar la bbdd
   */
   constructor(private platform: Platform, private sqlite: SQLite) {}
-  async executeSentence(
+  executeSentence(
     target: any[],
     sqlSentence: string,
     searchParam: any[]
   ) {
     let consultable = true;
     if (!this.db) {
-      await this.openDB()
+      this.openDB()
         .then(() => {
           console.log(this.db);
         })
@@ -60,12 +60,12 @@ export class DatosService {
     this.executeSentence(this.cursosList, sql, [estudios]);
   }
 
-  async openDB() {
-    await this.platform
+   openDB() {
+     this.platform
       .ready()
-      .then(async () => {
+      .then( () => {
         //si la plataforma esta preparada voy a abrir la bbdd ya copiada
-        await this.sqlite
+        this.sqlite
           //si la bbdd no existe la crea y la abre y si existe la abre
           .create(this.getConector())
           .then((db: SQLiteObject) => {
