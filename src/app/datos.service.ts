@@ -6,6 +6,7 @@ import { Injectable } from "@angular/core";
   providedIn: "root",
 })
 export class DatosService {
+  public horarioMatrix: any[][] = [];
   private db: SQLiteObject;
   private horasList: any[] = [];
   private cursosList: any[] = [];
@@ -60,6 +61,39 @@ export class DatosService {
     this.executeSentence(this.cursosList, sql, [estudios]);
   }
 
+  fixMerged(input, output): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let id = -1;
+      for (let item of input) {
+        if (id == item.id) {
+          let prev = output.pop();
+          prev.nombre = prev.nombre + " / " + item.nombre;
+          prev.descripcion = prev.descripcion + " / " + item.descripcion;
+          output.push(prev);
+        } else {
+          output.push(item);
+        }
+        id = item.id;
+      }
+      resolve();
+    });
+  }
+  async getHorario(idGrupo){
+    const MAX_HOUR = 6;
+    const sqlMateriasDia = "SELECT horaClase.idDiaClase AS id, materia.nombre, materia.completo AS descripcion"+
+     "FROM materia NATURAL JOIN materiahoraclase NATURAL JOIN horaClase NATURAL JOIN diaClase INNER JOIN grupo"+
+     "ON diaClase.idGrupo = grupo.idGrupo INNER JOIN diaSemana ON diaClase.idDiaSemana = diaSemana.idDiaSemana"+
+     "WHERE horaClase.idHorasSemana = ? AND grupo.idGrupo = ?";
+     this.horarioMatrix.push([{ "nombre": "HORARIO" }, { "nombre": "LUNES" }, { "nombre": "MARTES" }, { "nombre": "MIERCOLES" }, { "nombre": "JUEVES" }, { "nombre": "VIERNES" }]);
+     for (let i = 1; i < MAX_HOUR + 1; i++) {
+      let tempList = [];
+      let sortedTempList = []
+      tempList.push(this.horasList[i - 1]);
+      await this.executeSentence(tempList, sqlMateriasDia, [i, idGrupo]);
+      await this.fixMerged(tempList, sortedTempList);
+      this.horarioMatrix.push(sortedTempList);
+     }
+  }
    openDB() {
      this.platform
       .ready()

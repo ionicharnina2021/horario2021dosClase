@@ -8,6 +8,8 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["home.page.scss"],
 })
 export class HomePage implements OnInit {
+  //debe guardar los cursos esta list
+  public list: any[] = [];
   constructor(private copiaService:CopiaService, private datosService:DatosService) {}
   ngOnInit(): void {
     
@@ -20,5 +22,12 @@ export class HomePage implements OnInit {
   }
   getHoras(){
     this.datosService.getHoras();
+  }
+
+  async loadHorario(curso) {
+    console.log("Entro en cargar horario");
+    await this.sql.getHorario(curso.id);
+    console.log("Ahora meto la pag horario");
+    this.navCtrl.navigateForward('horario', curso.nombre);
   }
 }
